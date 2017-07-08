@@ -45,7 +45,20 @@ var controller = {
   // Get all students data
   getStudents: function() {
     return model.student;
+  },
+
+  calculateMissedDays: function() {
+    var students = this.getStudents();
+    for (var i = 0 ; i < students.length; i++) {
+      var student = students[i];
+      student.daysMissed = student.attendance.reduce(function(n, val) {
+        return n + (val === false);
+      }, 0);
+    }
+    view.render();
   }
+
+
 };
 
 /* ============== View ============== */
@@ -80,13 +93,26 @@ var view = {
           studentAttendanceInputElem.setAttribute("checked", "");
         };
         studentAttendanceElem.appendChild(studentAttendanceInputElem);
+        studentAttendanceInputElem.addEventListener('click',function() {
+          controller.calculateMissedDays();
+        });
       }
       // Add the total number of days missed by the student in the last column
       var studentMissedDaysElem = document.createElement('td');
       studentMissedDaysElem.setAttribute("class", "missed-col");
-      studentMissedDaysElem.textContent = student.daysMissed;
       studentElem.appendChild(studentMissedDaysElem);
+
     }
+    controller.calculateMissedDays();
+
+  },
+  render: function() {
+    var students = controller.getStudents();
+    for (var i = 0 ; i < students.length; i++) {
+      var student = students[i];
+      var studentMissedDaysElem = document.getElementsByClassName('missed-col');
+      studentMissedDaysElem[i+1].textContent = student.daysMissed;
+  }
   }
 };
 
